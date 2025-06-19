@@ -1,6 +1,6 @@
-package kipe.chain
+package fipe.chain
 
-import kipe.step.Step
+import fipe.step.Step
 import kotlinx.coroutines.flow.Flow
 
 interface Chain<In, Out> {
