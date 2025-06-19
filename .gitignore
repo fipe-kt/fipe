@@ -1,0 +1,9 @@
+/.idea/*
+!/.idea/copyright
+.gradle
+*.iml
+target
+build
+/local.properties
+benchmarks.jar
+.kotlin
