@@ -27,7 +27,7 @@ jobs:
 
       - name: Setup gradle.properties
         run: |
-          cat <<EOF > gradle.properties
+          cat <<EOF >> gradle.properties
           mavenCentralUsername=${{ secrets.MAVEN_CENTRAL_USERNAME }}
           mavenCentralPassword=${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           signing.keyId=${{ secrets.SIGNING_KEY_ID }}
