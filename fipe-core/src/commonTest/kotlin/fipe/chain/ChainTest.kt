@@ -1,6 +1,6 @@
 package fipe.chain
 
-import fipe.step.BufferedStep
+import fipe.step.BufferedMapStep
 import fipe.step.MapStep
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.flowOf
@@ -14,7 +14,7 @@ class ChainTest {
     fun `chain maps and buffers in order`() = runTest {
         val pipeline = chain<Int>()
             .then(MapStep { it * 2 })
-            .then(BufferedStep(capacity = 8, onBufferOverflow = BufferOverflow.SUSPEND) { it + 1 })
+            .then(BufferedMapStep(capacity = 8, onBufferOverflow = BufferOverflow.SUSPEND) { it + 1 })
             .toFlow(flowOf(1, 2, 3))
 
         val result = pipeline.toList()

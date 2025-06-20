@@ -31,7 +31,7 @@ class StepTest {
     @Test
     fun `BufferedStep이 요소를 올바르게 변환하는지 테스트`() = runTest {
         // 버퍼 크기 2, overflow 시 SUSPEND, 입력값을 2배로 만드는 BufferedStep
-        val step = BufferedStep<Int, Int>(
+        val step = BufferedMapStep<Int, Int>(
             capacity = 2,
             onBufferOverflow = BufferOverflow.SUSPEND
         ) { it * 2 }
@@ -44,7 +44,7 @@ class StepTest {
     @Test
     fun `BufferedStep이 overflow 발생 시 가장 오래된 요소를 버리는지 테스트`() = runTest {
         // 버퍼 크기 1, overflow 발생 시 가장 오래된 요소(DROP_OLDEST)를 버리는 BufferedStep
-        val step = BufferedStep<Int, Int>(
+        val step = BufferedMapStep<Int, Int>(
             capacity = 1,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         ) { it }
