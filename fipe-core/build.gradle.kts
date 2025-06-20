@@ -15,6 +15,7 @@ kotlin {
                 }
             }
         }
+        publishLibraryVariants("release")
     }
 
     iosX64()
@@ -44,29 +45,35 @@ android {
     }
 }
 
+group = findProperty("POM_GROUP_ID").toString()
+version = findProperty("POM_VERSION").toString()
+
 publishing {
     publications {
-        withType<MavenPublication> {
+        create<MavenPublication>("maven") {
+            from(components["kotlin"])
+            groupId = findProperty("POM_GROUP_ID").toString()
+            artifactId = "fipe-core"
+            version = findProperty("POM_VERSION").toString()
+            description = findProperty("POM_DESCRIPTION").toString()
             pom {
-                name = findProperty("POM_NAME")?.toString()
-                description = findProperty("POM_DESCRIPTION")?.toString()
-                url = findProperty("POM_URL")?.toString()
+                url = findProperty("POM_URL").toString()
                 licenses {
                     license {
-                        name = findProperty("POM_LICENSE_NAME")?.toString()
-                        url = findProperty("POM_LICENSE_URL")?.toString()
+                        name = findProperty("POM_LICENSE_NAME").toString()
+                        url = findProperty("POM_LICENSE_URL").toString()
                     }
                 }
                 developers {
                     developer {
-                        id = findProperty("POM_DEVELOPER_ID")?.toString()
-                        name = findProperty("POM_DEVELOPER_NAME")?.toString()
+                        id = findProperty("POM_DEVELOPER_ID").toString()
+                        name = findProperty("POM_DEVELOPER_NAME").toString()
                     }
                 }
                 scm {
-                    url = findProperty("POM_URL") as String
-                    connection = "scm:git:${findProperty("POM_URL") as String}.git"
-                    developerConnection = "scm:git:${findProperty("POM_URL") as String}.git"
+                    url = findProperty("POM_URL").toString()
+                    connection = "scm:git:${findProperty("POM_URL")}"
+                    developerConnection = "scm:git:${findProperty("POM_URL")}"
                 }
             }
         }
