@@ -1,5 +1,6 @@
 package fipe.step
 
+import fipe.Step
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
@@ -16,7 +17,7 @@ inline fun <reified In, reified Out> BufferedMapStep(
     noinline mapper: suspend (In) -> Out,
 ): BufferedMapStep<In, Out> {
     return BufferedMapStep(
-        name = "BufferedStep ${In::class.simpleName} - ${Out::class.simpleName}",
+        name = "BufferedMapStep ${In::class.simpleName} - ${Out::class.simpleName}",
         capacity = capacity,
         onBufferOverflow = onBufferOverflow,
         mapper = mapper

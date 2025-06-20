@@ -1,5 +1,7 @@
-package fipe.step
+package fipe
 
+import fipe.step.BufferedMapStep
+import fipe.step.MapStep
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -50,7 +52,7 @@ class StepTest {
         ) { it }
 
         // 값을 비동기로 전달하기 위한 Channel
-        val inputChannel = Channel<Int>(Channel.UNLIMITED)
+        val inputChannel = Channel<Int>(Channel.Factory.UNLIMITED)
         val outputList = mutableListOf<Int>()
         // Step 처리 결과를 outputList에 모음
         val collectJob = launch {

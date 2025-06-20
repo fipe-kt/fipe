@@ -1,5 +1,6 @@
 package fipe.step
 
+import fipe.Step
 import kotlinx.coroutines.flow.Flow
 
 interface ParallelOrderedStep<In, Out> : Step<In, Out> {

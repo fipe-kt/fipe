@@ -1,5 +1,6 @@
 package fipe.step
 
+import fipe.Step
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -1,4 +1,4 @@
-package fipe.chain
+package fipe
 
 import fipe.step.BufferedMapStep
 import fipe.step.MapStep
@@ -9,12 +9,16 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ChainTest {
+class FipeTest {
     @Test
-    fun `chain maps and buffers in order`() = runTest {
-        val pipeline = chain<Int>()
+    fun `fipe maps and buffers in order`() = runTest {
+        val pipeline = fipe<Int>()
             .then(MapStep { it * 2 })
-            .then(BufferedMapStep(capacity = 8, onBufferOverflow = BufferOverflow.SUSPEND) { it + 1 })
+            .then(
+                BufferedMapStep(
+                    capacity = 8,
+                    onBufferOverflow = BufferOverflow.SUSPEND
+                ) { it + 1 })
             .toFlow(flowOf(1, 2, 3))
 
         val result = pipeline.toList()
