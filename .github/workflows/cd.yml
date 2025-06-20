@@ -21,6 +21,7 @@ jobs:
 
       - name: Set up GPG secret key
         run: |
+          mkdir -p /home/runner/.gnupg
           echo "${{ secrets.SIGNING_SECRET_KEY_RING_BASE64 }}" | base64 -d > /home/runner/.gnupg/secring.gpg
           chmod 600 /home/runner/.gnupg/secring.gpg
 
