@@ -2,6 +2,7 @@ package fipe.step
 
 import fipe.Step
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
@@ -12,8 +13,8 @@ interface BufferedMapStep<In, Out> : Step<In, Out>, MapStep<In, Out> {
 }
 
 inline fun <reified In, reified Out> BufferedMapStep(
-    capacity: Int,
-    onBufferOverflow: BufferOverflow,
+    capacity: Int = BUFFERED,
+    onBufferOverflow: BufferOverflow = BufferOverflow.SUSPEND,
     noinline mapper: suspend (In) -> Out,
 ): BufferedMapStep<In, Out> {
     return BufferedMapStep(
@@ -26,8 +27,8 @@ inline fun <reified In, reified Out> BufferedMapStep(
 
 fun <In, Out> BufferedMapStep(
     name: String,
-    capacity: Int,
-    onBufferOverflow: BufferOverflow,
+    capacity: Int = BUFFERED,
+    onBufferOverflow: BufferOverflow = BufferOverflow.SUSPEND,
     mapper: suspend (In) -> Out,
 ): BufferedMapStep<In, Out> {
     return BufferedMapStepImpl(name, capacity, onBufferOverflow, mapper)
