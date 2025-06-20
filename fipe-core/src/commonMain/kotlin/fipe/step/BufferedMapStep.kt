@@ -5,17 +5,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 
-interface BufferedStep<In, Out> : Step<In, Out>, MapStep<In, Out> {
+interface BufferedMapStep<In, Out> : Step<In, Out>, MapStep<In, Out> {
     val capacity: Int
     val onBufferOverflow: BufferOverflow
 }
 
-inline fun <reified In, reified Out> BufferedStep(
+inline fun <reified In, reified Out> BufferedMapStep(
     capacity: Int,
     onBufferOverflow: BufferOverflow,
     noinline mapper: suspend (In) -> Out,
-): BufferedStep<In, Out> {
-    return BufferedStep(
+): BufferedMapStep<In, Out> {
+    return BufferedMapStep(
         name = "BufferedStep ${In::class.simpleName} - ${Out::class.simpleName}",
         capacity = capacity,
         onBufferOverflow = onBufferOverflow,
@@ -23,21 +23,21 @@ inline fun <reified In, reified Out> BufferedStep(
     )
 }
 
-fun <In, Out> BufferedStep(
+fun <In, Out> BufferedMapStep(
     name: String,
     capacity: Int,
     onBufferOverflow: BufferOverflow,
     mapper: suspend (In) -> Out,
-): BufferedStep<In, Out> {
-    return BufferedStepImpl(name, capacity, onBufferOverflow, mapper)
+): BufferedMapStep<In, Out> {
+    return BufferedMapStepImpl(name, capacity, onBufferOverflow, mapper)
 }
 
-private class BufferedStepImpl<In, Out>(
+private class BufferedMapStepImpl<In, Out>(
     override val name: String,
     override val capacity: Int,
     override val onBufferOverflow: BufferOverflow,
     override val mapper: suspend (In) -> Out,
-) : BufferedStep<In, Out> {
+) : BufferedMapStep<In, Out> {
     override fun process(flow: Flow<In>): Flow<Out> {
         return flow.buffer(capacity, onBufferOverflow).map(mapper)
     }
