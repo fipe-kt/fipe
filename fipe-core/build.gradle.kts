@@ -52,7 +52,7 @@ version = findProperty("POM_VERSION").toString()
 mavenPublishing {
     coordinates(
         groupId = findProperty("POM_GROUP_ID").toString(),
-        artifactId = findProperty("POM_ARTIFACT_ID").toString(),
+        artifactId = "fipe-core",
         version = findProperty("POM_VERSION").toString()
     )
     pom {
