@@ -1,9 +1,10 @@
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    `maven-publish`
+    alias(libs.plugins.vanniktech.maven.publish)
 }
 
 kotlin {
@@ -48,34 +49,38 @@ android {
 group = findProperty("POM_GROUP_ID").toString()
 version = findProperty("POM_VERSION").toString()
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["kotlin"])
-            groupId = findProperty("POM_GROUP_ID").toString()
-            artifactId = "fipe-core"
-            version = findProperty("POM_VERSION").toString()
-            description = findProperty("POM_DESCRIPTION").toString()
-            pom {
-                url = findProperty("POM_URL").toString()
-                licenses {
-                    license {
-                        name = findProperty("POM_LICENSE_NAME").toString()
-                        url = findProperty("POM_LICENSE_URL").toString()
-                    }
-                }
-                developers {
-                    developer {
-                        id = findProperty("POM_DEVELOPER_ID").toString()
-                        name = findProperty("POM_DEVELOPER_NAME").toString()
-                    }
-                }
-                scm {
-                    url = findProperty("POM_URL").toString()
-                    connection = "scm:git:${findProperty("POM_URL")}"
-                    developerConnection = "scm:git:${findProperty("POM_URL")}"
-                }
+mavenPublishing {
+    coordinates(
+        groupId = findProperty("POM_GROUP_ID").toString(),
+        artifactId = findProperty("POM_ARTIFACT_ID").toString(),
+        version = findProperty("POM_VERSION").toString()
+    )
+    pom {
+        name.set(findProperty("POM_NAME").toString())
+        description.set(findProperty("POM_DESCRIPTION").toString())
+        inceptionYear.set(findProperty("POM_INCEPTION_YEAR").toString())
+        url.set(findProperty("POM_URL").toString())
+
+        licenses {
+            license {
+                name.set(findProperty("POM_LICENSE_NAME").toString())
+                url.set(findProperty("POM_LICENSE_URL").toString())
             }
         }
+        developers {
+            developer {
+                id.set(findProperty("POM_DEVELOPER_ID").toString())
+                name.set(findProperty("POM_DEVELOPER_NAME").toString())
+                email.set(findProperty("POM_DEVELOPER_EMAIL").toString())
+            }
+        }
+        scm {
+            connection.set(findProperty("POM_SCM_CONNECTION").toString())
+            developerConnection.set(findProperty("POM_SCM_DEVELOPER_CONNECTION").toString())
+            url.set(findProperty("POM_SCM_URL").toString())
+        }
     }
+
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 }
