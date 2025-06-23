@@ -2,13 +2,22 @@ package fipe
 
 import fipe.step.BufferedMapStep
 import fipe.step.MapStep
+import fipe.step.ShareStep
+import fipe.step.StateStep
+import fipe.step.ConflateStep
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -68,5 +77,52 @@ class StepTest {
 
         // 결과적으로 1(첫번째), 3(마지막)만 남는다.
         assertEquals(listOf(1, 3), outputList)
+    }
+
+    @Test
+    fun `ShareStep은 여러 구독에서 업스트림을 한번만 구독한다`() = runTest {
+        var subscribed = 0
+        val upstream = flow {
+            subscribed++
+            emit(1)
+        }
+
+        val step = ShareStep<Int>(this, replay = 0, started = SharingStarted.Lazily)
+        val shared = step.process(upstream)
+
+        shared.first()
+        shared.first()
+
+        assertEquals(1, subscribed)
+    }
+
+    @Test
+    fun `StateStep은 최신 값을 유지한다`() = runTest {
+        val step = StateStep<Int>(this, started = SharingStarted.Eagerly, initialValue = 0)
+        val state = step.process(flowOf(1, 2, 3)) as StateFlow<Int>
+
+        val values = state.take(4).toList()
+
+        assertEquals(listOf(0, 1, 2, 3), values)
+        assertEquals(3, state.value)
+    }
+
+    @Test
+    fun `ConflateStep은 느린 소비자에게 최신 값만 전달한다`() = runTest {
+        val step = ConflateStep<Int>()
+        val result = mutableListOf<Int>()
+
+        step.process(
+            flow {
+                emit(1)
+                emit(2)
+                emit(3)
+            }
+        ).collect {
+            result.add(it)
+            if (it == 1) delay(10)
+        }
+
+        assertEquals(listOf(1, 3), result)
     }
 }
