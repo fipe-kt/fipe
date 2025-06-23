@@ -6,7 +6,7 @@ It enables you to chain together small, focused processing steps—such as mappi
 ## Features
 
 - **Composable Pipelines**: Chain multiple transformation steps (`then`) to process streams of data.
-- **Flexible Steps**: Includes mapping, buffering, and parallel ordered processing out-of-the-box.
+- **Flexible Steps**: Includes mapping, buffering, sharing, state handling, conflation and parallel ordered processing out-of-the-box.
 - **Kotlin Multiplatform**: Runs on JVM, Android, and iOS via Kotlin Multiplatform.
 - **Coroutine & Flow-based**: Naturally asynchronous and non-blocking.
 
@@ -18,12 +18,16 @@ import fipe.step.BufferedMapStep
 import fipe.step.ParallelOrderedStep
 import fipe.fipe
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking {
     val pipeline = fipe<Int>()
         .then(MapStep { it * 2 })
         .then(BufferedMapStep(capacity = 10) { it + 1 })
+        .conflate()
+        .share(this)
+        .state(this, initialValue = 0)
         .then(ParallelOrderedStep { listOf(it, it + 1) })
 
     val input = flowOf(1, 2, 3, 4, 5)
