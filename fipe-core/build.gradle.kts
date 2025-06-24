@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,7 +13,7 @@ kotlin {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_1_8)
+                    jvmTarget.set(JvmTarget.JVM_17)
                 }
             }
         }
@@ -41,8 +42,8 @@ android {
         minSdk = 21
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -50,6 +51,17 @@ group = findProperty("POM_GROUP_ID").toString()
 version = findProperty("POM_VERSION").toString()
 
 mavenPublishing {
+    repositories {
+        maven {
+            val props = Properties()
+            props.load(rootProject.file("github.properties").inputStream())
+            url = uri(props.getProperty("url"))
+            credentials {
+                username = props.getProperty("username")
+                password = props.getProperty("token")
+            }
+        }
+    }
     coordinates(
         groupId = findProperty("POM_GROUP_ID").toString(),
         artifactId = "fipe-core",
