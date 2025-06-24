@@ -1,5 +1,6 @@
 # Android
 local.properties
+github.properties
 *.DS_Store
 
 # Gradle
