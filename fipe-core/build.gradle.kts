@@ -51,17 +51,6 @@ group = findProperty("POM_GROUP_ID").toString()
 version = findProperty("POM_VERSION").toString()
 
 mavenPublishing {
-    repositories {
-        maven {
-            val props = Properties()
-            props.load(rootProject.file("github.properties").inputStream())
-            url = uri(props.getProperty("url"))
-            credentials {
-                username = props.getProperty("username")
-                password = props.getProperty("token")
-            }
-        }
-    }
     coordinates(
         groupId = findProperty("POM_GROUP_ID").toString(),
         artifactId = "fipe-core",
