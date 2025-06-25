@@ -3,6 +3,7 @@ package fipe.step
 import fipe.Fipe
 import fipe.Step
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 
@@ -18,10 +19,10 @@ fun <T> BufferStep(
     name: String = "BufferStep",
 ): BufferStep<T> = BufferStepImpl(capacity, onBufferOverflow, name)
 
-fun <T> Fipe<T, T>.buffer(
-    capacity: Int,
+fun <In, Out> Fipe<In, Out>.thenBuffer(
+    capacity: Int = BUFFERED,
     onBufferOverflow: BufferOverflow = BufferOverflow.SUSPEND,
-): Fipe<T, T> = this.then(BufferStep(capacity, onBufferOverflow))
+): Fipe<In, Out> = this.then(BufferStep(capacity, onBufferOverflow))
 
 private class BufferStepImpl<T>(
     override val capacity: Int,
