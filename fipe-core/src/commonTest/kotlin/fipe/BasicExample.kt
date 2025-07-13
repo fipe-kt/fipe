@@ -10,13 +10,15 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.invoke
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import kotlin.math.pow
 import kotlin.math.round
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.measureTime
 
 class BasicExample {
@@ -62,7 +64,7 @@ class BasicExample {
         }
 
         suspend fun Fipe<Int, Double>.pipelineResult(): List<Double> {
-            return withContext(Dispatchers.Default) {
+            return Dispatchers.Default {
                 toFlow(
                     flow {
                         repeat(bufferSize) {
