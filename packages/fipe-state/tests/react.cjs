@@ -1,0 +1,58 @@
+const assert = require("node:assert/strict");
+const React = require("react");
+const { create } = require("react-test-renderer");
+const { Workflow, enter, update } = require("fipe-state");
+const { useWorkflowSnapshot } = require("fipe-state/react");
+
+async function main() {
+    global.IS_REACT_ACT_ENVIRONMENT = true;
+    assert.equal(require("fipe-state").deferred, undefined);
+    assert.throws(() => require("fipe-state/dist/runtime.js"), { code: "ERR_PACKAGE_PATH_NOT_EXPORTED" });
+
+    const model = new Workflow({ count: 0 }, () => "ready", event => event, stage => {
+        stage("ready", definition => {
+            definition.on("noop", () => update(state => state));
+            definition.on("count", () => update(state => ({ count: state.count + 1 })));
+            definition.on("reset", () => enter(state => state));
+            definition.task("fail", async () => { throw new Error("provider detail"); }, "read");
+        });
+    });
+    const initial = model.snapshot;
+    assert.equal(model.getSnapshot(), initial);
+    model.send("noop");
+    assert.equal(model.getSnapshot(), initial);
+
+    function Counter() {
+        const { state, failures } = useWorkflowSnapshot(model);
+        return React.createElement("output", null, `${state.count}:${failures.length}`);
+    }
+
+    let mounted;
+    await React.act(async () => { mounted = create(React.createElement(Counter)); });
+    assert.deepEqual(mounted.toJSON().children, ["0:0"]);
+
+    await React.act(async () => { model.send("count"); });
+    assert.notEqual(model.getSnapshot(), initial);
+    assert.equal(model.snapshot.visit, initial.visit);
+    assert.deepEqual(mounted.toJSON().children, ["1:0"]);
+
+    await React.act(async () => { await model.send("fail").settled; });
+    assert.deepEqual(mounted.toJSON().children, ["1:1"]);
+    assert.deepEqual(model.snapshot.failures, [{ operation: "read", kind: "OperationFailed" }]);
+    assert(Object.isFrozen(model.snapshot.failures[0]));
+
+    await React.act(async () => { model.send("reset"); });
+    assert.notEqual(model.snapshot.visit, initial.visit);
+    assert.deepEqual(mounted.toJSON().children, ["1:0"]);
+
+    await React.act(async () => { mounted.unmount(); });
+    model.send("count");
+    assert.equal(model.state.count, 2);
+    model.close();
+    console.log("PASS packaged React hook: cached snapshots render, failures invalidate, unmount preserves host");
+}
+
+main().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+});

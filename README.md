@@ -1,5 +1,11 @@
 ![Fipe](logo.png)
 
+## Fipe State
+
+Fipe State adds a local workflow runtime for Kotlin, React Native, and Swift. The [Fipe State beta guide](docs/fipe-state.md) covers installation and task, stage, visit, and session ownership.
+
+## Fipe Flow core
+
 Fipe는 Kotlin `Flow`를 사용하여 비동기적이고 조립 가능한 데이터 파이프라인을 구축하기 위한 경량 Kotlin Multiplatform 라이브러리입니다.  
 작고 집중된 처리 단계를 연결하여(예: 매핑, 버퍼링, 병렬 변환) 복잡하고 효율적인 데이터 흐름을 구성할 수 있습니다.
 
