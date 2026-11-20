@@ -1,4 +1,4 @@
-![Fipe](logo.png)
+<img src="logo.png" alt="Fipe" width="240">
 
 Fipe는 Kotlin `Flow`를 사용하여 비동기적이고 조립 가능한 데이터 파이프라인을 구축하기 위한 경량 Kotlin Multiplatform 라이브러리입니다.  
 작고 집중된 처리 단계를 연결하여(예: 매핑, 버퍼링, 병렬 변환) 복잡하고 효율적인 데이터 흐름을 구성할 수 있습니다.
