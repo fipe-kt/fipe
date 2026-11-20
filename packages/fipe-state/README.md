@@ -1,0 +1,42 @@
+# Fipe State for React Native
+
+Use `fipe-state` to coordinate asynchronous work with the lifetime of a screen or session. A task has an execution identity, and each stage entry has a fresh visit. Task completion checks both before committing a workflow change.
+
+## Install the beta
+
+Install the npm tarball from the Fipe release.
+
+```sh
+npm install ./fipe-state-1.0.0-beta.1.tgz
+```
+
+The core entry has no React dependency. The `fipe-state/react` entry requires React 18 or later. The mobile conformance runs use React Native 0.88.1 with Hermes.
+
+## Read workflow state in a React component
+
+```tsx
+import { View, Text } from "react-native";
+import { Workflow, update } from "fipe-state";
+import { useWorkflowSnapshot } from "fipe-state/react";
+
+const counter = new Workflow<number, "increment">(0, () => "count", event => event, stage => {
+    stage("count", definition => {
+        definition.on("increment", () => update(value => value + 1));
+    });
+});
+
+export function Counter() {
+    const { state } = useWorkflowSnapshot(counter);
+    return <View><Text onPress={() => counter.send("increment")}>{state}</Text></View>;
+}
+```
+
+Use immutable domain state. `update` applies a change to the latest state and keeps the current visit. `enter` applies a change and opens a fresh visit, even when the stage key stays the same. Pass the captured visit as the second argument to `send` when a callback belongs to a specific visit.
+
+The hook subscribes to the workflow during rendering. The host decides when the workflow closes. Give a screen or a session an explicit owner and close that owner when it ends. `TaskContext.spawn` registers child work that the task waits for. A task's `signal` requests cancellation where the operation supports it.
+
+`Session` shares one in-flight refresh for each login instance and configured provider call. Component waits can cancel independently. Keep credentials and raw provider errors at the authentication boundary and use safe failure labels.
+
+## Build and check an installed artifact
+
+Run `npm ci` and `npm test`. The check builds the package, packs it, and installs the tarball into a temporary consumer. It runs the state, ownership, security, and React subscription checks from there.

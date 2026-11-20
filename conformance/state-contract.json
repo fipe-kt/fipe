@@ -1,0 +1,92 @@
+[
+  {
+    "id": "task-replace",
+    "trace": "Start A, replace with B, start a new A. Old A succeeds during new A, then B fails late.",
+    "expected": "Only the new A can settle the current slot.",
+    "output": "PASS task: replace A → B → A and ignore late success and failure"
+  },
+  {
+    "id": "task-cancel",
+    "trace": "Cancel a task during its callback, then start it again.",
+    "expected": "The task returns to idle and accepts the next run.",
+    "output": "PASS task: cancellation releases the slot"
+  },
+  {
+    "id": "task-child",
+    "trace": "Return from a task body while owned child work remains pending.",
+    "expected": "The task stays running and rejects duplicates until its child finishes.",
+    "output": "PASS task: completion waits for structured child work"
+  },
+  {
+    "id": "stage-close",
+    "trace": "Close a stage while owned callbacks remain pending.",
+    "expected": "Closing revokes the callbacks immediately. Independent order tracking continues.",
+    "output": "PASS stage: close returns before cleanup and leaves independent work running"
+  },
+  {
+    "id": "signup-replace",
+    "trace": "Confirm, resend, fail resend, then complete the old confirm successfully.",
+    "expected": "The resend error remains and terms do not open.",
+    "output": "PASS workflow: a failed resend survives a late successful confirmation"
+  },
+  {
+    "id": "signup-visit",
+    "trace": "Go Back during confirm and re-enter verification.",
+    "expected": "The old visit cannot dispatch inputs or commit completions.",
+    "output": "PASS workflow: re-entry rejects events and results from the first visit"
+  },
+  {
+    "id": "editor-update",
+    "trace": "Start independent color and opacity updates and edit the name during both.",
+    "expected": "Both edits and the user input apply to one visit.",
+    "output": "PASS editor: independent completions and typed input preserve one visit"
+  },
+  {
+    "id": "editor-failure",
+    "trace": "Fail the color edit and complete the opacity edit.",
+    "expected": "Color keeps its error while opacity changes.",
+    "output": "PASS editor: an unrelated successful task preserves the color error"
+  },
+  {
+    "id": "editor-reenter",
+    "trace": "Enter the same stage explicitly during a task.",
+    "expected": "The old authority ends even though the stage key stays the same.",
+    "output": "PASS editor: explicit re-entry revokes the old visit even at the same stage"
+  },
+  {
+    "id": "scheduling",
+    "trace": "Start a request, then try ignore and replace while it is outstanding.",
+    "expected": "Ignore drops the input. Replacement can start while old physical work remains pending.",
+    "output": "PASS scheduling boundary: ignore discards work and replacement allows physical overlap"
+  },
+  {
+    "id": "refresh-share",
+    "trace": "Start refresh from two workflows, then close one workflow.",
+    "expected": "There is one provider request and the remaining view receives the outcome.",
+    "output": "PASS security: two workflows share one refresh and closing one cancels only its wait"
+  },
+  {
+    "id": "refresh-logout",
+    "trace": "Log out during refresh, sign in as the same account, and return the old result.",
+    "expected": "The previous login cannot write the new credential or transition the new view.",
+    "output": "PASS security: late refresh after logout cannot populate a new login for the same account"
+  },
+  {
+    "id": "refresh-host-close",
+    "trace": "Cancel the parent while the provider cannot be interrupted.",
+    "expected": "An external waiter returns without waiting for the provider.",
+    "output": "PASS security: host cancellation releases external waiters before the provider returns"
+  },
+  {
+    "id": "refresh-retry",
+    "trace": "Fail the provider request, then retry.",
+    "expected": "The first result is safe and the retry can install a new value.",
+    "output": "PASS security: provider failure returns a safe outcome and permits a fresh attempt"
+  },
+  {
+    "id": "failure-safe",
+    "trace": "Send a synthetic payload and fail with synthetic error and nested cause.",
+    "expected": "The failure snapshot and standalone task state expose safe fields.",
+    "output": "PASS security: snapshots expose failure labels and kinds without payload or exception text"
+  }
+]

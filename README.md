@@ -20,6 +20,8 @@ Fipe는 앱의 상태와 비동기 작업을 관리하는 **Fipe State**와 Kotl
 
 [베타 다운로드](https://github.com/fipe-kt/fipe/releases/tag/1.0.0-beta.1) · [플랫폼별 설치 가이드](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/docs/fipe-state.md)
 
+소스 코드 · [Kotlin](fipe-state-kotlin/src/main/kotlin/kipe/state/) · [React Native](packages/fipe-state/src/) · [Swift](Sources/FipeState/)
+
 ## Fipe Flow
 
 Kotlin `Flow`의 매핑, 버퍼링, 병렬 변환 등을 `then`으로 연결합니다. Android와 iOS용 Kotlin Multiplatform 패키지를 Maven Central에서 받을 수 있습니다.
