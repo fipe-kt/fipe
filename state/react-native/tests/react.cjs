@@ -1,8 +1,8 @@
 const assert = require("node:assert/strict");
 const React = require("react");
 const { create } = require("react-test-renderer");
-const { Workflow, enter, update } = require("fipe-state");
-const { useWorkflowSnapshot } = require("fipe-state/react");
+const { Session, Workflow, enter, update } = require("fipe-state");
+const { useScreenWorkflow, useWorkflowSnapshot } = require("fipe-state/react");
 
 async function main() {
     global.IS_REACT_ACT_ENVIRONMENT = true;
@@ -50,6 +50,79 @@ async function main() {
     assert.equal(model.state.count, 2);
     model.close();
     console.log("PASS packaged React hook: cached snapshots render, failures invalidate, unmount preserves host");
+
+    await checkScreenLifetime();
+}
+
+async function checkScreenLifetime() {
+    let completeRefresh;
+    let completeLateWork;
+    let refreshes = 0;
+    const refresh = new Promise(resolve => { completeRefresh = resolve; });
+    const lateWork = new Promise(resolve => { completeLateWork = resolve; });
+    const session = new Session({ version: 1 }, async () => {
+        refreshes++;
+        return refresh;
+    });
+    const createScreen = () => new Workflow("waiting", () => "ready", event => event, stage => {
+        stage("ready", definition => {
+            definition.task("refresh", async (_, { signal }) => {
+                const result = await session.refresh(signal);
+                return update(() => result);
+            });
+            definition.task("lateWork", async () => {
+                await lateWork;
+                return update(() => "stale");
+            });
+        });
+    }, session.signal);
+
+    const active = new Map();
+    function Screen({ name, factory }) {
+        const workflow = useScreenWorkflow(factory);
+        React.useLayoutEffect(() => {
+            if (!workflow) return;
+            active.set(name, workflow);
+            return () => { active.delete(name); };
+        }, [name, workflow]);
+        return null;
+    }
+    const tree = (leftFactory, showLeft = true) => React.createElement(React.StrictMode, null,
+        showLeft && React.createElement(Screen, { key: "left", name: "left", factory: leftFactory }),
+        React.createElement(Screen, { key: "right", name: "right", factory: createScreen }),
+    );
+    let renderer;
+    await React.act(async () => { renderer = create(tree(createScreen)); });
+    const original = active.get("left");
+    const right = active.get("right");
+    assert.notEqual(original, right);
+    const replacement = () => createScreen();
+    await React.act(async () => { renderer.update(tree(replacement)); });
+    const left = active.get("left");
+    assert.notEqual(left.visit, original.visit);
+    assert.equal(original.send("refresh"), undefined);
+    assert.equal(active.get("right"), right);
+
+    const leftWait = left.send("refresh");
+    const rightWait = right.send("refresh");
+    const staleRun = left.send("lateWork");
+    assert.equal(refreshes, 1);
+    await React.act(async () => { renderer.update(tree(replacement, false)); });
+    await leftWait.settled;
+    assert.equal(staleRun.signal.aborted, true);
+    assert.equal(rightWait.signal.aborted, false);
+    assert.equal(left.send("refresh"), undefined);
+    assert.equal(session.signal.aborted, false);
+
+    completeLateWork();
+    completeRefresh({ version: 2 });
+    await Promise.all([staleRun.settled, rightWait.settled]);
+    assert.equal(left.state, "waiting");
+    assert.equal(right.state, "updated");
+    assert.deepEqual(session.currentCredential, { version: 2 });
+    await React.act(async () => { renderer.unmount(); });
+    session.close();
+    console.log("PASS packaged screen hook: replacement and unmount close only the owned workflow");
 }
 
 main().catch(error => {
