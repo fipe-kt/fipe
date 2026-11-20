@@ -2,29 +2,29 @@
 
 # Fipe
 
-Fipe는 앱의 상태와 비동기 작업을 관리하는 **Fipe State**와 Kotlin `Flow`로 데이터 파이프라인을 만드는 **Fipe Flow**를 제공합니다.
+**Fipe State** manages application state and asynchronous work. **Fipe Flow** builds data pipelines with Kotlin `Flow`.
 
 ## Fipe State
 
-화면에서 시작한 요청의 수명과 단계 전환을 관리합니다. 예를 들어 이메일 인증 중에 뒤로 갔다가 다시 진입하면, 첫 방문의 인증 응답은 새 화면을 전환할 수 없습니다.
+Fipe State manages the lifetime of asynchronous requests and the transitions between stages. If a user leaves email verification and returns, a response from the earlier visit cannot advance the new one.
 
-- `task`는 실행이 겹칠 때 중복 입력을 무시하거나 이전 작업을 교체합니다.
-- `stage`는 작업을 소유하고, 단계에서 나갈 때 그 작업의 늦은 결과가 반영되지 않도록 합니다.
-- `workflow`는 현재 단계에 이벤트를 전달하고 상태 갱신과 단계 전환을 처리합니다.
+- A `task` handles overlapping runs by ignoring repeated input or replacing the current run.
+- A `stage` owns its tasks. Leaving the stage prevents their late results from updating state.
+- A `workflow` routes events to the current stage and handles state updates and transitions.
 
-| 플랫폼 | `1.0.0-beta.1` 설치 |
+| Platform | Install `1.0.0-beta.1` |
 | --- | --- |
-| Kotlin · JVM, Android | GitHub 릴리스의 Maven ZIP을 풀고 `io.github.fipe-kt:fipe-state:1.0.0-beta.1`을 추가합니다. |
-| React Native · TypeScript | GitHub 릴리스의 tarball을 받아 `npm install ./fipe-state-1.0.0-beta.1.tgz`를 실행합니다. |
-| Swift · iOS, macOS | SwiftPM에서 이 저장소의 `1.0.0-beta.1` 태그와 `FipeState` 제품을 선택합니다. |
+| Kotlin · JVM, Android | Extract the Maven ZIP from the GitHub release and add `io.github.fipe-kt:fipe-state:1.0.0-beta.1` as a dependency. |
+| React Native · TypeScript | Download the tarball from the GitHub release and run `npm install ./fipe-state-1.0.0-beta.1.tgz`. |
+| Swift · iOS, macOS | In SwiftPM, select this repository's `1.0.0-beta.1` tag and the `FipeState` product. |
 
-[베타 다운로드](https://github.com/fipe-kt/fipe/releases/tag/1.0.0-beta.1) · [플랫폼별 설치 가이드](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/docs/fipe-state.md)
+[Download the beta](https://github.com/fipe-kt/fipe/releases/tag/1.0.0-beta.1) · [Installation guide](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/docs/fipe-state.md)
 
-소스 코드 · [Kotlin](fipe-state-kotlin/src/main/kotlin/kipe/state/) · [React Native](packages/fipe-state/src/) · [Swift](Sources/FipeState/)
+Source code · [Kotlin](fipe-state-kotlin/src/main/kotlin/kipe/state/) · [React Native](packages/fipe-state/src/) · [Swift](Sources/FipeState/)
 
 ## Fipe Flow
 
-Kotlin `Flow`의 매핑, 버퍼링, 병렬 변환 등을 `then`으로 연결합니다. Android와 iOS용 Kotlin Multiplatform 패키지를 Maven Central에서 받을 수 있습니다.
+Use `then` to chain mapping, buffering, and parallel transformations on a Kotlin `Flow`. The Kotlin Multiplatform package for Android and iOS is available on Maven Central.
 
 ```kotlin
 kotlin {
@@ -37,7 +37,7 @@ kotlin {
 }
 ```
 
-아래 예제는 각 값을 두 배로 만든 뒤 1을 더합니다. 두 변환 사이의 버퍼를 통해 앞 단계는 뒤 단계가 소비하는 동안 다음 값을 처리할 수 있습니다.
+This example doubles each value and then adds one. The buffer lets the first step process the next value while the second step consumes the previous one.
 
 ```kotlin
 import fipe.fipe
@@ -57,19 +57,19 @@ suspend fun main() {
 ```
 
 <details>
-<summary>버퍼 적용 전후 측정 예시</summary>
+<summary>Example timings with and without a buffer</summary>
 
-값 30개와 항목당 30ms의 입력 지연을 사용한 실험입니다. 첫 두 변환에 각각 30ms와 60ms의 지연을 넣고, 세 번째 변환은 지연 없이 실행했습니다.
+The experiment ran with 30 values and a 30 ms delay per input. The first two transformations added delays of 30 ms and 60 ms, respectively. The third transformation ran without an added delay.
 
-| 실행 방식 | 변환 단계 기준 이론 최소 | 측정값 |
+| Execution | Theoretical minimum for the transformation steps | Measured time |
 | --- | ---: | ---: |
-| 순차 처리 | 2.7초 | 3.958783583초 |
-| 버퍼를 사용한 파이프라인 | 1.77초 | 2.050898667초 |
+| Sequential | 2.7 s | 3.958783583 s |
+| Buffered pipeline | 1.77 s | 2.050898667 s |
 
-[버퍼 동작 테스트](fipe-core/src/commonTest/kotlin/fipe/BasicExample.kt)
+[Buffer behavior test](fipe-core/src/commonTest/kotlin/fipe/BasicExample.kt)
 
 </details>
 
-## 라이선스
+## License
 
 [Apache License 2.0](LICENSE)
