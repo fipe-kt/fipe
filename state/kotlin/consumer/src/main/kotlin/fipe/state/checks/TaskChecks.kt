@@ -1,4 +1,4 @@
-package kipe.state.checks
+package fipe.state.checks
 
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -15,9 +15,9 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import kipe.state.Task
-import kipe.state.TaskState
-import kipe.state.WhileRunning
+import fipe.state.Task
+import fipe.state.TaskState
+import fipe.state.WhileRunning
 
 internal class Call<I, O>(val input: I, private val result: Continuation<O>) {
     fun complete(value: O) = result.resume(value)

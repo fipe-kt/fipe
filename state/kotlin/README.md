@@ -4,31 +4,32 @@ Fipe State is a Kotlin/JVM library for local asynchronous work. A task owns its 
 
 ## Install
 
-Use Kotlin 2.2 or a compatible later compiler. The library emits Java 8 bytecode and uses Kotlin coroutines. Add the extracted Maven release repository and Maven Central.
+This guide describes the development snapshot. Build its local Maven repository using the commands below and add that directory alongside Maven Central. Use Kotlin 2.2 or later. The library emits Java 8 bytecode.
+
+For the published beta and its scope-taking factory, see the [beta.1 Kotlin guide](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/fipe-state-kotlin/README.md).
 
 ```kotlin
 repositories {
-    maven { url = uri("/path/to/fipe-state-maven") }
+    maven { url = uri("/path/to/fipe/state/kotlin/build/maven-repository") }
     mavenCentral()
 }
 
 dependencies {
-    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.1")
+    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.2-SNAPSHOT")
 }
 ```
 
-## Start a workflow
+## Define and start a workflow
 
 ```kotlin
-import kipe.state.Change
-import kipe.state.workflow
-import kotlinx.coroutines.CoroutineScope
+import fipe.state.Change
+import fipe.state.workflow
 
 enum class Page { Form, Done }
 enum class Event { Save, Back }
 
-fun editor(scope: CoroutineScope, save: suspend () -> Unit) =
-    workflow(scope, Page.Form, { it }, { event: Event -> event }) {
+fun editor(save: suspend () -> Unit) =
+    workflow(Page.Form, { it }, { event: Event -> event }) {
         stage(Page.Form) {
             task(Event.Save) { _, _ ->
                 save()
@@ -41,13 +42,23 @@ fun editor(scope: CoroutineScope, save: suspend () -> Unit) =
     }
 ```
 
-Call `send(workflow.visit, Event.Save)` to bind an event to the current visit. Close the workflow when its owner leaves. Read `snapshot` to obtain state and structured task failures together. Keep state immutable and reducers non-suspending.
+To migrate from beta.1, update Kotlin imports from `kipe.state` to `fipe.state` (including `fipe.state.auth`), and move the scope argument from `workflow(scope, …)` to `.startIn(scope)` at the execution site.
 
-For authentication, `kipe.state.auth.SessionOwner` owns one login instance. Mount workflows on its `scope`. Concurrent calls to `refresh()` await the same in-flight renewal. Call `close()` on logout and create a new owner for the next login. Keep the credential returned by `currentCredential()` within the authentication adapter.
+The declaration evaluates the DSL and validates the initial stage once. Call `startIn` to create an execution for an owner. In a ViewModel, keep the running workflow as a property.
+
+```kotlin
+private val form = editor(repository::save).startIn(viewModelScope)
+```
+
+Each start gets fresh visits, task slots, and failures. Starts share the initial value and handler captures, so keep state immutable and choose shared dependencies deliberately. Capture `form.visit` when displaying a screen and pass that visit to `form.send(visit, Event.Save)` when the user taps Save.
+
+Closing an execution revokes its work. Cancelling its owner also prevents future inputs and late results from updating that execution. A definition can start again under another owner.
+
+For authentication, `fipe.state.auth.SessionOwner` owns one login instance. Mount workflows on its `scope`. Concurrent calls to `refresh()` await the same in-flight renewal. Call `close()` on logout and create a new owner for the next login. Keep the credential returned by `currentCredential()` within the authentication adapter.
 
 ## Build and verify
 
-Use JDK 17 or 21 to run the root Gradle wrapper. From the repository root, publish the Java library and source jar to the staging directory. Run the consumer to resolve the staged Maven publication and exercise all 15 Kotlin contract cases.
+Use JDK 17 or 21 to run the root Gradle wrapper. From the repository root, publish the Java library and source jar to the staging directory. Run the consumer to resolve the staged Maven publication and exercise the shared contract and the Kotlin definition lifecycle checks.
 
 ```sh
 ./gradlew -p state/kotlin publishAllPublicationsToStagingRepository

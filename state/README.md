@@ -10,7 +10,7 @@ Choose the guide for your platform. The Kotlin and React Native packages are ava
 
 | Platform | Guide |
 | --- | --- |
-| Kotlin on JVM or Android | [Install the Maven artifact and define a workflow](kotlin/README.md) |
+| Kotlin on JVM or Android | [Development snapshot](kotlin/README.md) · [Published beta.1 API](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/fipe-state-kotlin/README.md) |
 | React Native with TypeScript | [Install the npm tarball and observe a workflow in React](react-native/README.md) |
 | Swift on iOS or macOS | [Add the SwiftPM product and read workflow state](swift/README.md) |
 

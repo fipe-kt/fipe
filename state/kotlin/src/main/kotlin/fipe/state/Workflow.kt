@@ -1,4 +1,4 @@
-package kipe.state
+package fipe.state
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -91,7 +91,7 @@ class StageDefinition<S : Any, E : Any, R : Any> internal constructor() {
     }
 }
 
-class WorkflowDefinition<S : Any, E : Any, K : Any, R : Any> internal constructor(
+class WorkflowBuilder<S : Any, E : Any, K : Any, R : Any> internal constructor(
     private val eventOf: (E) -> R,
 ) {
     private val stages = mutableMapOf<K, StageSpec<S, E>>()
@@ -105,23 +105,30 @@ class WorkflowDefinition<S : Any, E : Any, K : Any, R : Any> internal constructo
 }
 
 fun <S : Any, E : Any, K : Any, R : Any> workflow(
-    scope: CoroutineScope,
     initial: S,
     stageOf: (S) -> K,
     eventOf: (E) -> R,
-    define: WorkflowDefinition<S, E, K, R>.() -> Unit,
-): Workflow<S, E> {
-    val stages = WorkflowDefinition<S, E, K, R>(eventOf).apply(define).snapshot()
-    return Workflow(scope, initial) { state ->
+    define: WorkflowBuilder<S, E, K, R>.() -> Unit,
+): WorkflowDefinition<S, E> {
+    val stages = WorkflowBuilder<S, E, K, R>(eventOf).apply(define).snapshot()
+    return WorkflowDefinition(initial) { state ->
         val key = stageOf(state)
         key to requireNotNull(stages[key]) { "Undefined stage: $key" }
     }
 }
 
+class WorkflowDefinition<S : Any, E : Any> internal constructor(
+    internal val initial: S,
+    internal val stageFor: (S) -> Pair<Any, StageSpec<S, E>>,
+) {
+    internal val initialStage = stageFor(initial)
+
+    fun startIn(scope: CoroutineScope): Workflow<S, E> = Workflow(this, scope)
+}
+
 class Workflow<S : Any, E : Any> internal constructor(
+    private val definition: WorkflowDefinition<S, E>,
     private val scope: CoroutineScope,
-    initial: S,
-    private val stageFor: (S) -> Pair<Any, StageSpec<S, E>>,
 ) : AutoCloseable {
     private data class Input<S, E>(val acceptedState: S, val event: E)
 
@@ -134,8 +141,8 @@ class Workflow<S : Any, E : Any> internal constructor(
     )
 
     private val lock = Any()
-    private var current = newVisit(stageFor(initial))
-    private var currentState = initial
+    private var current = newVisit(definition.initialStage)
+    private var currentState = definition.initial
     private val failures = linkedMapOf<TaskGroup<S, E>, TaskFailure>()
     private var closed = false
 
@@ -192,7 +199,7 @@ class Workflow<S : Any, E : Any> internal constructor(
 
     private fun applyLocked(change: Change<S>): List<Job> {
         val next = change.apply(currentState)
-        val stage = stageFor(next)
+        val stage = definition.stageFor(next)
         val retired = when (change) {
             is Change.Update -> {
                 require(stage.first == current.key) {
