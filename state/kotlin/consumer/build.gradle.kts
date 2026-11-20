@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.1")
+    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.2-SNAPSHOT")
 }
 
 java {

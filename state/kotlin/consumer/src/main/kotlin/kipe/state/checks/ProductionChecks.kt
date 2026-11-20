@@ -39,7 +39,7 @@ fun main() = runBlocking {
         withTimeout(10_000) {
             val colors = Controlled<String, String>()
             val opacity = Controlled<Int, Int>()
-            workflow(host, Editor(), Editor::page, Intent::key) {
+            workflow(Editor(), Editor::page, Intent::key) {
                 stage(Page.Editing) {
                     task(IntentKey.SetColor, failureLabel = IntentKey.SetColor) { _, intent ->
                         val color = colors.run((intent as Intent.SetColor).color)
@@ -57,7 +57,7 @@ fun main() = runBlocking {
                     on(IntentKey.InvalidLocalEdit) { _, _ -> Change.Update { it.copy(page = Page.Closed) } }
                 }
                 stage(Page.Closed) {}
-            }.use { editor ->
+            }.startIn(host).use { editor ->
                 val visit = editor.visit
                 val colorJob = checkNotNull(editor.send(visit, Intent.SetColor("red")))
                 val colorCall = colors.take()

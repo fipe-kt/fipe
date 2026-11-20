@@ -22,7 +22,7 @@ private enum class AuthIntent { Refresh, Validate }
 private data class Validation(val payload: String)
 
 private fun refreshView(session: SessionOwner<Credential>) =
-    workflow(session.scope, AuthPage.Waiting, { it }, { event: AuthIntent -> event }) {
+    workflow(AuthPage.Waiting, { it }, { event: AuthIntent -> event }) {
         stage(AuthPage.Waiting) {
             task(AuthIntent.Refresh) { _, _ ->
                 val page = when (session.refresh()) {
@@ -35,7 +35,7 @@ private fun refreshView(session: SessionOwner<Credential>) =
         }
         stage(AuthPage.Ready) {}
         stage(AuthPage.Retry) {}
-    }
+    }.startIn(session.scope)
 
 fun main() = runBlocking {
     val host = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
@@ -147,14 +147,14 @@ private suspend fun checkSafeDiagnostics(host: CoroutineScope) {
     val sdkDetail = "synthetic-sdk-marker"
     val cause = "synthetic-nested-marker"
     val error = IllegalStateException(sdkDetail, IllegalArgumentException(cause))
-    workflow(host, AuthPage.Waiting, { it }, { _: Validation -> AuthIntent.Validate }) {
+    workflow(AuthPage.Waiting, { it }, { _: Validation -> AuthIntent.Validate }) {
         stage(AuthPage.Waiting) {
             task(AuthIntent.Validate, failureLabel = AuthIntent.Validate) { _, event ->
                 check(event.payload == payload)
                 throw error
             }
         }
-    }.use { runner ->
+    }.startIn(host).use { runner ->
         checkNotNull(runner.send(Validation(payload))).await()
         check(runner.snapshot.failures == listOf(TaskFailure("Validate", FailureKind.OperationFailed)))
         for (marker in listOf(payload, sdkDetail, cause)) {
