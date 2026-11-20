@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.2-SNAPSHOT")
 }
 
