@@ -7,7 +7,7 @@ Use `fipe-state` to coordinate asynchronous work with the lifetime of a screen o
 Install the npm tarball from the Fipe release.
 
 ```sh
-npm install ./fipe-state-1.0.0-beta.1.tgz
+npm install ./fipe-state-1.0.0-beta.2.tgz
 ```
 
 The core entry has no React dependency. The `fipe-state/react` entry requires React 18 or later. The mobile conformance runs use React Native 0.88.1 with Hermes.
@@ -37,7 +37,7 @@ The hook subscribes to the workflow during rendering. The host owns the workflow
 
 ## Own a workflow in a screen
 
-The development build exports `useScreenWorkflow` from `fipe-state/react`. Pass a stable factory that returns a fresh workflow each time React sets up the screen.
+The beta.2 package exports `useScreenWorkflow` from `fipe-state/react`. Pass a stable factory that returns a fresh workflow each time React sets up the screen.
 
 ```tsx
 import { useScreenWorkflow } from "fipe-state/react";

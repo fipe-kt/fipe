@@ -4,10 +4,10 @@ Use Fipe State from Swift 6 on iOS 16 or later and macOS 13 or later.
 
 ## Install with Swift Package Manager
 
-Add the repository in Xcode and choose the exact version `1.0.0-beta.1`. Select the `FipeState` library product. For a Swift package, declare the dependency and add the product to your target.
+Add the repository in Xcode and choose the exact version `1.0.0-beta.2`. Select the `FipeState` library product. For a Swift package, declare the dependency and add the product to your target.
 
 ```swift
-.package(url: "https://github.com/fipe-kt/fipe.git", exact: "1.0.0-beta.1")
+.package(url: "https://github.com/fipe-kt/fipe.git", exact: "1.0.0-beta.2")
 ```
 
 ```swift
@@ -18,7 +18,7 @@ Import `FipeState`. Access its runtime on the main actor. Read the synchronous s
 
 ## Own a workflow in a SwiftUI screen
 
-From a development checkout, add the `FipeStateSwiftUI` product to your app target and import it. Use `WorkflowScreen` where a SwiftUI view owns an independent execution.
+Add the `FipeStateSwiftUI` product to your app target and import it. Use `WorkflowScreen` where a SwiftUI view owns an independent execution.
 
 ```swift
 import FipeStateSwiftUI

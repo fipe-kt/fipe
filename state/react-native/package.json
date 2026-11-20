@@ -1,6 +1,6 @@
 {
   "name": "fipe-state",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Lifecycle and concurrency primitives for React Native and TypeScript.",
   "license": "Apache-2.0",
   "repository": {

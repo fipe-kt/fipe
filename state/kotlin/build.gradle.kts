@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.fipe-kt"
-version = "1.0.0-beta.2-SNAPSHOT"
+version = "1.0.0-beta.2"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

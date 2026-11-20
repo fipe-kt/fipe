@@ -9,7 +9,7 @@ import tarfile
 import xml.etree.ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
-VERSION = "1.0.0-beta.1"
+VERSION = "1.0.0-beta.2"
 ROOT = Path(__file__).resolve().parent.parent
 
 

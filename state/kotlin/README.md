@@ -4,18 +4,18 @@ Fipe State is a Kotlin/JVM library for local asynchronous work. A task owns its 
 
 ## Install
 
-This guide describes the development snapshot. Build its local Maven repository using the commands below and add that directory alongside Maven Central. Use Kotlin 2.2 or later. The library emits Java 8 bytecode.
+Download and extract the [beta.2 Maven repository ZIP](https://github.com/fipe-kt/fipe/releases/download/1.0.0-beta.2/fipe-state-maven-1.0.0-beta.2.zip). Add its extracted directory alongside Maven Central. Use Kotlin 2.2 or later. The library emits Java 8 bytecode.
 
-For the published beta and its scope-taking factory, see the [beta.1 Kotlin guide](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/fipe-state-kotlin/README.md).
+For the previous beta and its scope-taking factory, see the [beta.1 Kotlin guide](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/fipe-state-kotlin/README.md).
 
 ```kotlin
 repositories {
-    maven { url = uri("/path/to/fipe/state/kotlin/build/maven-repository") }
+    maven { url = uri("/path/to/extracted/maven-repository") }
     mavenCentral()
 }
 
 dependencies {
-    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.2-SNAPSHOT")
+    implementation("io.github.fipe-kt:fipe-state:1.0.0-beta.2")
 }
 ```
 
