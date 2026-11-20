@@ -9,12 +9,10 @@ import fipe.state.auth.RefreshOutcome
 import fipe.state.auth.SessionOwner
 import fipe.state.workflow
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 
 private data class Credential(val account: String, val version: Int)
 private enum class AuthPage { Waiting, Ready, Retry }
@@ -37,30 +35,24 @@ private fun refreshView(session: SessionOwner<Credential>) =
         stage(AuthPage.Retry) {}
     }.startIn(session.scope)
 
-fun main() = runBlocking {
-    val host = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
-    try {
-        withTimeout(10_000) {
-            checkSharedRefresh(host)
-            checkLogout(host)
-            checkHostCancellation(host)
-            checkRetry(host)
-            checkSafeDiagnostics(host)
-        }
-    } finally {
-        host.cancel()
-    }
+fun main() = runTest {
+    checkSharedRefresh()
+    checkLogout()
+    checkHostCancellation()
+    checkRetry(this)
+    checkSafeDiagnostics(this)
 }
 
-private suspend fun checkSharedRefresh(host: CoroutineScope) {
+private suspend fun TestScope.checkSharedRefresh() {
     val provider = Controlled<Credential, Credential>()
     val initial = Credential("same-account", 1)
-    SessionOwner(host, initial, provider::run).use { session ->
+    SessionOwner(this, initial, provider::run).use { session ->
         refreshView(session).use { left ->
             refreshView(session).use { right ->
                 val first = checkNotNull(left.send(AuthIntent.Refresh))
                 val call = provider.take()
                 val second = checkNotNull(right.send(AuthIntent.Refresh))
+                testScheduler.runCurrent()
                 check(call.input == initial && !provider.hasPendingCall())
                 left.close()
                 first.join()
@@ -75,16 +67,17 @@ private suspend fun checkSharedRefresh(host: CoroutineScope) {
     println("PASS security: two workflows share one refresh and closing one cancels only its wait")
 }
 
-private suspend fun checkLogout(host: CoroutineScope) {
+private suspend fun TestScope.checkLogout() {
     val retiredProvider = Controlled<Credential, Credential>()
     val currentProvider = Controlled<Credential, Credential>()
     val initial = Credential("same-account", 1)
-    SessionOwner(host, initial, retiredProvider::run).use { retired ->
+    SessionOwner(this, initial, retiredProvider::run).use { retired ->
         refreshView(retired).use { oldView ->
             val oldVisit = oldView.visit
             val oldJob = checkNotNull(oldView.send(AuthIntent.Refresh))
             val oldCall = retiredProvider.take()
-            val outside = host.async { retired.refresh() }
+            val outside = async { retired.refresh() }
+            testScheduler.runCurrent()
             check(!retiredProvider.hasPendingCall())
             retired.close()
             check(outside.await() == RefreshOutcome.SessionClosed && retired.currentCredential() == null)
@@ -94,12 +87,13 @@ private suspend fun checkLogout(host: CoroutineScope) {
             check(oldView.send(AuthIntent.Refresh) == null)
 
             val replacement = initial.copy(version = 10)
-            SessionOwner(host, replacement, currentProvider::run).use { current ->
+            SessionOwner(this, replacement, currentProvider::run).use { current ->
                 refreshView(current).use { newView ->
                     val newJob = checkNotNull(newView.send(AuthIntent.Refresh))
                     val newCall = currentProvider.take()
                     check(newCall.input == replacement)
                     oldCall.complete(initial.copy(version = 2))
+                    testScheduler.runCurrent()
                     check(retired.currentCredential() == null)
                     check(current.currentCredential() == replacement && newView.state == AuthPage.Waiting)
                     newCall.complete(replacement.copy(version = 11))
@@ -112,17 +106,18 @@ private suspend fun checkLogout(host: CoroutineScope) {
     println("PASS security: late refresh after logout cannot populate a new login for the same account")
 }
 
-private suspend fun checkHostCancellation(host: CoroutineScope) {
+private suspend fun TestScope.checkHostCancellation() {
     val provider = Controlled<Credential, Credential>()
-    val parent = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+    val parent = backgroundScope.childOwner()
     val initial = Credential("same-account", 1)
     SessionOwner(parent, initial, provider::run).use { session ->
-        val waiting = host.async { session.refresh() }
+        val waiting = async { session.refresh() }
         val stuck = provider.take()
         parent.cancel()
         check(waiting.await() == RefreshOutcome.SessionClosed)
         check(session.currentCredential() == null)
         stuck.complete(initial.copy(version = 2))
+        testScheduler.runCurrent()
         check(session.currentCredential() == null)
     }
     println("PASS security: host cancellation releases external waiters before the provider returns")
