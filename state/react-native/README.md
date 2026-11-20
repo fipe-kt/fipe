@@ -33,7 +33,24 @@ export function Counter() {
 
 Use immutable domain state. `update` applies a change to the latest state and keeps the current visit. `enter` applies a change and opens a fresh visit, even when the stage key stays the same. Pass the captured visit as the second argument to `send` when a callback belongs to a specific visit.
 
-The hook subscribes to the workflow during rendering. The host decides when the workflow closes. Give a screen or a session an explicit owner and close that owner when it ends. `TaskContext.spawn` registers child work that the task waits for. A task's `signal` requests cancellation where the operation supports it.
+The hook subscribes to the workflow during rendering. The host owns the workflow and closes it at the end of its lifetime. `TaskContext.spawn` registers child work that the task waits for. A task's `signal` requests cancellation where the operation supports it.
+
+## Own a workflow in a screen
+
+The development build exports `useScreenWorkflow` from `fipe-state/react`. Pass a stable factory that returns a fresh workflow each time React sets up the screen.
+
+```tsx
+import { useScreenWorkflow } from "fipe-state/react";
+
+export function EditorScreen() {
+    const editor = useScreenWorkflow(createEditorWorkflow);
+    return editor ? <Editor workflow={editor} /> : null;
+}
+```
+
+The hook returns `undefined` before setup or while replacing the workflow. A factory declared at module scope is stable. If the factory captures a document ID, memoize it with `useCallback` and include the ID in its dependencies. Changing the factory or removing the screen closes that screen's workflow. A screen that remains mounted while offscreen keeps its workflow.
+
+Give a shared session its own owner and close it at logout. The `Editor` component can read the screen workflow with `useWorkflowSnapshot`. The same subscription hook can read a workflow owned by the session.
 
 `Session` shares one in-flight refresh for each login instance and configured provider call. Component waits can cancel independently. Keep credentials and raw provider errors at the authentication boundary and use safe failure labels.
 
