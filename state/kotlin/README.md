@@ -52,7 +52,7 @@ private val form = editor(repository::save).startIn(viewModelScope)
 
 Each start gets fresh visits, task slots, and failures. Starts share the initial value and handler captures, so keep state immutable and choose shared dependencies deliberately. Capture `form.visit` when displaying a screen and pass that visit to `form.send(visit, Event.Save)` when the user taps Save.
 
-Closing an execution revokes its work. Cancelling its owner also prevents future inputs and late results from updating that execution. A definition can start again under another owner.
+When the ViewModel is cleared, its scope cancels the workflow's work and the workflow rejects further input. Call `close()` when an individual execution must end before its owner, for example when closing one editor tab in a shared ViewModel. A definition can start again under another owner.
 
 For authentication, `fipe.state.auth.SessionOwner` owns one login instance. Mount workflows on its `scope`. Concurrent calls to `refresh()` await the same in-flight renewal. Call `close()` on logout and create a new owner for the next login. Keep the credential returned by `currentCredential()` within the authentication adapter.
 
