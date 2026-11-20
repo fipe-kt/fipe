@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 root = Path(__file__).resolve().parent.parent
-contract = json.loads((root / "conformance/state-contract.json").read_text())
+contract = json.loads((root / "state/conformance/state-contract.json").read_text())
 expected = Counter(case["output"] for case in contract)
 if len(sys.argv) != 4:
     raise SystemExit("Supply the Kotlin, React Native, and Swift verification logs")

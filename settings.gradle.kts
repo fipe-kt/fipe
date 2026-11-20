@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "fipe-root"
 include(":fipe-core")
+project(":fipe-core").projectDir = file("flow")

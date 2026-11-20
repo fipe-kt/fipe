@@ -18,9 +18,9 @@ Fipe State manages the lifetime of asynchronous requests and the transitions bet
 | React Native · TypeScript | Download the tarball from the GitHub release and run `npm install ./fipe-state-1.0.0-beta.1.tgz`. |
 | Swift · iOS, macOS | In SwiftPM, select this repository's `1.0.0-beta.1` tag and the `FipeState` product. |
 
-[Download the beta](https://github.com/fipe-kt/fipe/releases/tag/1.0.0-beta.1) · [Installation guide](https://github.com/fipe-kt/fipe/blob/1.0.0-beta.1/docs/fipe-state.md)
+[Download the beta](https://github.com/fipe-kt/fipe/releases/tag/1.0.0-beta.1) · [Installation guide](docs/fipe-state.md)
 
-Source code · [Kotlin](fipe-state-kotlin/src/main/kotlin/kipe/state/) · [React Native](packages/fipe-state/src/) · [Swift](Sources/FipeState/)
+Source code · [Kotlin](state/kotlin/src/main/kotlin/kipe/state/) · [React Native](state/react-native/src/) · [Swift](state/swift/Sources/FipeState/)
 
 ## Fipe Flow
 
@@ -66,7 +66,7 @@ The experiment ran with 30 values and a 30 ms delay per input. The first two tra
 | Sequential | 2.7 s | 3.958783583 s |
 | Buffered pipeline | 1.77 s | 2.050898667 s |
 
-[Buffer behavior test](fipe-core/src/commonTest/kotlin/fipe/BasicExample.kt)
+[Buffer behavior test](flow/src/commonTest/kotlin/fipe/BasicExample.kt)
 
 </details>
 

@@ -58,7 +58,7 @@ Import `FipeState`. Access its runtime on the main actor. Read the synchronous s
 - Keep session refresh with its login owner. Two views can wait for one refresh, and closing a view ends its wait. Retiring the login revokes local credential installation.
 - Treat workflow snapshots as display data. A failed task exposes a label and failure kind. The authentication adapter owns credentials and provider-specific error handling.
 
-The shared [behavior contract](../conformance/state-contract.json) lists the cancellation, transition, editing, and session cases.
+The shared [behavior contract](../state/conformance/state-contract.json) lists the cancellation, transition, editing, and session cases.
 
 Closing a visit revokes its authority to update state and requests cancellation. Replacement can start while previous work is still cleaning up. An exclusive resource such as a camera needs an adapter that requests release on the old session and suspends acquisition until the platform reports availability. A server operation can continue after its caller stops waiting. Its transaction, idempotency key, and result lookup belong to the service that owns the effect.
 
@@ -80,14 +80,14 @@ Authenticate and authorize against your own services. The beta checks cover loca
 From the repository root, build the Maven repository and run the separately installed Kotlin consumer. Set `JAVA_HOME` to a JDK supported by the Gradle wrapper.
 
 ```sh
-./gradlew -p fipe-state-kotlin publishAllPublicationsToStagingRepository
-./gradlew -p fipe-state-kotlin/consumer verifyInstalled
+./gradlew -p state/kotlin publishAllPublicationsToStagingRepository
+./gradlew -p state/kotlin/consumer verifyInstalled
 ```
 
 Run the TypeScript package tests from its directory. They pack the package and run the common cases against an external installation.
 
 ```sh
-cd packages/fipe-state
+cd state/react-native
 npm ci
 npm test
 ```

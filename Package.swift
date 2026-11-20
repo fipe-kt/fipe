@@ -6,7 +6,11 @@ let package = Package(
     platforms: [.iOS(.v16), .macOS(.v13)],
     products: [.library(name: "FipeState", targets: ["FipeState"])],
     targets: [
-        .target(name: "FipeState"),
-        .testTarget(name: "FipeStateTests", dependencies: ["FipeState"]),
+        .target(name: "FipeState", path: "state/swift/Sources/FipeState"),
+        .testTarget(
+            name: "FipeStateTests",
+            dependencies: ["FipeState"],
+            path: "state/swift/Tests/FipeStateTests"
+        ),
     ]
 )

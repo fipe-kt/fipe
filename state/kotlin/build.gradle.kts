@@ -27,7 +27,7 @@ dependencies {
 }
 
 tasks.withType<Jar>().configureEach {
-    from("../LICENSE") { into("META-INF") }
+    from("../../LICENSE") { into("META-INF") }
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 }

@@ -6,7 +6,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fipe-kt/fipe.git",
-    "directory": "packages/fipe-state"
+    "directory": "state/react-native"
   },
   "type": "commonjs",
   "main": "./dist/index.js",

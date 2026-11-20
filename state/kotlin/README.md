@@ -50,8 +50,8 @@ For authentication, `kipe.state.auth.SessionOwner` owns one login instance. Moun
 Use JDK 17 or 21 to run the root Gradle wrapper. From the repository root, publish the Java library and source jar to the staging directory. Run the consumer to resolve the staged Maven publication and exercise all 15 Kotlin contract cases.
 
 ```sh
-./gradlew -p fipe-state-kotlin publishAllPublicationsToStagingRepository
-./gradlew -p fipe-state-kotlin/consumer verifyInstalled
+./gradlew -p state/kotlin publishAllPublicationsToStagingRepository
+./gradlew -p state/kotlin/consumer verifyInstalled
 ```
 
-The Maven repository defaults to `fipe-state-kotlin/build/maven-repository`. Set `-PfipeMavenRepository=/absolute/path` on both commands to use another directory.
+The Maven repository defaults to `state/kotlin/build/maven-repository`. Set `-PfipeMavenRepository=/absolute/path` on both commands to use another directory.
