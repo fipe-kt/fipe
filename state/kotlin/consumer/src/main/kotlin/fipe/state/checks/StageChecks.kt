@@ -1,8 +1,8 @@
-package kipe.state.checks
+package fipe.state.checks
 
-import kipe.state.Stage
-import kipe.state.Task
-import kipe.state.TaskState
+import fipe.state.Stage
+import fipe.state.Task
+import fipe.state.TaskState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

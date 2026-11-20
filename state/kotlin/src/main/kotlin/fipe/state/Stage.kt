@@ -1,4 +1,4 @@
-package kipe.state
+package fipe.state
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job

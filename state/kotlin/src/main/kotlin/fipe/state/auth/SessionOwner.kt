@@ -1,4 +1,4 @@
-package kipe.state.auth
+package fipe.state.auth
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred

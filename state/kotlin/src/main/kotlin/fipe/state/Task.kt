@@ -1,4 +1,4 @@
-package kipe.state
+package fipe.state
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope

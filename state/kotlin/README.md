@@ -22,8 +22,8 @@ dependencies {
 ## Define and start a workflow
 
 ```kotlin
-import kipe.state.Change
-import kipe.state.workflow
+import fipe.state.Change
+import fipe.state.workflow
 
 enum class Page { Form, Done }
 enum class Event { Save, Back }
@@ -42,7 +42,7 @@ fun editor(save: suspend () -> Unit) =
     }
 ```
 
-To migrate from beta.1, move the scope argument from `workflow(scope, …)` to `.startIn(scope)` at the execution site.
+To migrate from beta.1, update Kotlin imports from `kipe.state` to `fipe.state` (including `fipe.state.auth`), and move the scope argument from `workflow(scope, …)` to `.startIn(scope)` at the execution site.
 
 The declaration evaluates the DSL and validates the initial stage once. Call `startIn` to create an execution for an owner. In a ViewModel, keep the running workflow as a property.
 
@@ -54,7 +54,7 @@ Each start gets fresh visits, task slots, and failures. Starts share the initial
 
 Closing an execution revokes its work. Cancelling its owner also prevents future inputs and late results from updating that execution. A definition can start again under another owner.
 
-For authentication, `kipe.state.auth.SessionOwner` owns one login instance. Mount workflows on its `scope`. Concurrent calls to `refresh()` await the same in-flight renewal. Call `close()` on logout and create a new owner for the next login. Keep the credential returned by `currentCredential()` within the authentication adapter.
+For authentication, `fipe.state.auth.SessionOwner` owns one login instance. Mount workflows on its `scope`. Concurrent calls to `refresh()` await the same in-flight renewal. Call `close()` on logout and create a new owner for the next login. Keep the credential returned by `currentCredential()` within the authentication adapter.
 
 ## Build and verify
 

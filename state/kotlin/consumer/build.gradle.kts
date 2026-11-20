@@ -26,7 +26,7 @@ val cases = checks.map { name ->
     tasks.register<JavaExec>("run$name") {
         dependsOn(tasks.classes)
         classpath = sourceSets.main.get().runtimeClasspath
-        mainClass.set("kipe.state.checks.${name}Kt")
+        mainClass.set("fipe.state.checks.${name}Kt")
     }
 }
 cases.zipWithNext().forEach { (earlier, later) ->

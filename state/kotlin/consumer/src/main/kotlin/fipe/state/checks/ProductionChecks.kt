@@ -1,10 +1,10 @@
-package kipe.state.checks
+package fipe.state.checks
 
-import kipe.state.Change
-import kipe.state.FailureKind
-import kipe.state.Task
-import kipe.state.WhileRunning
-import kipe.state.workflow
+import fipe.state.Change
+import fipe.state.FailureKind
+import fipe.state.Task
+import fipe.state.WhileRunning
+import fipe.state.workflow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
