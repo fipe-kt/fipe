@@ -192,6 +192,9 @@ private func checkSignup(_ report: (String) -> Void) async throws {
         ],
         .terms: [:],
     ])
+    let initial = signup.snapshot
+    try expect(initial.state == .email && initial.visit === signup.visit && initial.failures.isEmpty)
+    report("PASS workflow: the first snapshot exposes the initial state, current visit and no failures")
     try expect(try signup.send(.confirm) == nil && auth.count == 0)
     try signup.send(.sendCode)
     let first = signup.visit

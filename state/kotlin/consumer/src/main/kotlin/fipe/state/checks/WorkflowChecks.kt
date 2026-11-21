@@ -31,6 +31,9 @@ fun main() = runTest {
         }
         stage(Screen.Terms) {}
     }.startIn(this).use { signup ->
+        val initial = signup.snapshot
+        check(initial.state == Screen.Email && initial.visit === signup.visit && initial.failures.isEmpty())
+        println("PASS workflow: the first snapshot exposes the initial state, current visit and no failures")
         check(signup.send(Event.Confirm) == null && !auth.hasPendingCall())
         signup.send(Event.SendCode)
         val first = signup.visit

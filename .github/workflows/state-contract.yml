@@ -1,0 +1,44 @@
+name: Fipe State contract
+
+on:
+  pull_request:
+    paths:
+      - 'state/**'
+      - 'Package.swift'
+      - 'gradlew'
+      - 'gradle/wrapper/**'
+      - 'scripts/check-state-contract.py'
+      - '.github/workflows/state-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Compare Kotlin, React Native and Swift
+    runs-on: macos-15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test the Kotlin Maven package
+        run: |
+          ./gradlew -p state/kotlin publishAllPublicationsToStagingRepository
+          ./gradlew -p state/kotlin/consumer verifyInstalled | tee "$RUNNER_TEMP/kotlin.log"
+      - name: Test the React Native npm package
+        working-directory: state/react-native
+        run: |
+          npm ci
+          npm test | tee "$RUNNER_TEMP/react.log"
+      - name: Test the Swift package
+        run: swift test -Xswiftc -warnings-as-errors | tee "$RUNNER_TEMP/swift.log"
+      - name: Compare results with the shared contract
+        run: python3 scripts/check-state-contract.py "$RUNNER_TEMP/kotlin.log" "$RUNNER_TEMP/react.log" "$RUNNER_TEMP/swift.log"

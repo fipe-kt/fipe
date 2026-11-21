@@ -154,6 +154,9 @@ async function workflowChecks(report: Report) {
         });
         stage("terms", () => {});
     });
+    const initial = signup.snapshot;
+    check(initial.state === "email" && initial.visit === signup.visit && initial.failures.length === 0);
+    report("PASS workflow: the first snapshot exposes the initial state, current visit and no failures");
     check(signup.send("confirm") === undefined && !auth.pending);
     signup.send("sendCode");
     const first = signup.visit;

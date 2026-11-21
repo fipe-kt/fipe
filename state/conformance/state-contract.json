@@ -24,6 +24,12 @@
     "output": "PASS stage: close returns before cleanup and leaves independent work running"
   },
   {
+    "id": "initial-snapshot",
+    "trace": "Create a running workflow and read its snapshot before sending any event.",
+    "expected": "The snapshot is available immediately with the initial state, the current visit and no failures.",
+    "output": "PASS workflow: the first snapshot exposes the initial state, current visit and no failures"
+  },
+  {
     "id": "signup-replace",
     "trace": "Confirm, resend, fail resend, then complete the old confirm successfully.",
     "expected": "The resend error remains and terms do not open.",
