@@ -1,8 +1,15 @@
 import { useLayoutEffect, useState, useSyncExternalStore } from "react";
 import type { Workflow, WorkflowSnapshot } from "./runtime";
 
-export function useWorkflowSnapshot<S, E>(workflow: Workflow<S, E>): WorkflowSnapshot<S> {
-    return useSyncExternalStore(workflow.subscribe, workflow.getSnapshot, workflow.getSnapshot);
+const noSnapshot = () => undefined;
+const subscribeWhenAbsent = () => noSnapshot;
+
+export function useWorkflowSnapshot<S, E>(workflow: Workflow<S, E>): WorkflowSnapshot<S>;
+export function useWorkflowSnapshot(workflow: undefined): undefined;
+export function useWorkflowSnapshot<S, E>(workflow: Workflow<S, E> | undefined): WorkflowSnapshot<S> | undefined;
+export function useWorkflowSnapshot<S, E>(workflow: Workflow<S, E> | undefined): WorkflowSnapshot<S> | undefined {
+    const getSnapshot = workflow?.getSnapshot ?? noSnapshot;
+    return useSyncExternalStore(workflow?.subscribe ?? subscribeWhenAbsent, getSnapshot, getSnapshot);
 }
 
 export function useScreenWorkflow<S, E>(create: () => Workflow<S, E>): Workflow<S, E> | undefined {

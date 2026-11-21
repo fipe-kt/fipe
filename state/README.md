@@ -23,6 +23,8 @@ Choose the guide for your platform. The Kotlin and React Native packages are ava
 
 The shared [behavior contract](conformance/state-contract.json) lists the cancellation, transition, editing, and session cases.
 
+A running workflow exposes its initial snapshot before the first event on all three platforms. Screen setup follows the host framework. React's screen hook can return `undefined` while mounting or replacing a workflow. SwiftUI calls the content builder after creating the model on appearance. Kotlin's `startIn(scope)` returns the running workflow directly.
+
 Closing a visit revokes its authority to update state and requests cancellation. Replacement can start while previous work is still cleaning up. An exclusive resource such as a camera needs an adapter that requests release on the old session and suspends acquisition until the platform reports availability. A server operation can continue after its caller stops waiting. Its transaction, idempotency key, and result lookup belong to the service that owns the effect.
 
 The shared beta API covers local execution and transition rules. Long-lived shared work such as session refresh has a separate owner. Application-specific policies for durable jobs, physical resource handoff, and task collections can live in adapters.

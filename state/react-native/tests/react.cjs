@@ -51,7 +51,34 @@ async function main() {
     model.close();
     console.log("PASS packaged React hook: cached snapshots render, failures invalidate, unmount preserves host");
 
+    await checkScreenSnapshots();
     await checkScreenLifetime();
+}
+
+async function checkScreenSnapshots() {
+    const makeCounter = initial => () => new Workflow(initial, () => "ready", event => event, stage => {
+        stage("ready", definition => definition.on("count", () => update(value => value + 1)));
+    });
+    const commits = [];
+    function Screen({ factory }) {
+        const workflow = useScreenWorkflow(factory);
+        const snapshot = useWorkflowSnapshot(workflow);
+        React.useLayoutEffect(() => { commits.push(snapshot?.state); }, [snapshot]);
+        return React.createElement("button", { onClick: () => workflow.send("count") }, snapshot?.state);
+    }
+
+    let renderer;
+    await React.act(async () => { renderer = create(React.createElement(Screen, { factory: makeCounter(1) })); });
+    assert.deepEqual(commits, [undefined, 1]);
+    await React.act(async () => { renderer.root.findByType("button").props.onClick(); });
+    assert.deepEqual(renderer.toJSON().children, ["2"]);
+    commits.length = 0;
+    await React.act(async () => { renderer.update(React.createElement(Screen, { factory: makeCounter(10) })); });
+    assert.deepEqual(commits, [undefined, 10]);
+    await React.act(async () => { renderer.root.findByType("button").props.onClick(); });
+    assert.deepEqual(renderer.toJSON().children, ["11"]);
+    await React.act(async () => { renderer.unmount(); });
+    console.log("PASS packaged screen snapshots: setup, updates, replacement and resubscription");
 }
 
 async function checkScreenLifetime() {
