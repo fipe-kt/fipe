@@ -50,6 +50,37 @@ export function EditorScreen() {
 
 The hook returns `undefined` before setup or while replacing the workflow. A factory declared at module scope is stable. If the factory captures a document ID, memoize it with `useCallback` and include the ID in its dependencies. Changing the factory or removing the screen closes that screen's workflow. A screen that remains mounted while offscreen keeps its workflow.
 
+After beta.2, you can read the screen snapshot in the same component. Both hooks return `undefined` before setup and while the factory changes. A caller that passes a mounted workflow still gets a definite snapshot.
+
+```tsx
+const editor = useScreenWorkflow(createEditorWorkflow);
+const snapshot = useWorkflowSnapshot(editor);
+```
+
+### Pause a mounted screen when it loses focus
+
+For a preview that should only fetch while visible, pass the navigation focus flag to the screen. Subscribe to React Native's `AppState` in a layout effect. This example assumes the preview has a `load` task and a `pause` handler defined as `preview.on("pause", () => enter(state => state))`. Entering a new visit cancels the previous task and keeps the last displayed value. A late result from that task cannot update the new visit.
+
+```tsx
+useLayoutEffect(() => {
+    if (!workflow || !focused) return;
+    let foreground = false;
+    const sync = (next: boolean) => {
+        if (next === foreground) return;
+        foreground = next;
+        workflow.send(next ? "load" : "pause");
+    };
+    const subscription = AppState.addEventListener("change", state => sync(state === "active"));
+    sync(AppState.currentState === "active");
+    return () => {
+        subscription.remove();
+        if (foreground) workflow.send("pause");
+    };
+}, [focused, workflow]);
+```
+
+Import `AppState` from `react-native`, and `useLayoutEffect` from `react`. The first active notification starts a load. Repeated active notifications leave it running. Regaining focus while the app is active starts a fresh load.
+
 Give a shared session its own owner and close it at logout. The `Editor` component can read the screen workflow with `useWorkflowSnapshot`. The same subscription hook can read a workflow owned by the session.
 
 `Session` shares one in-flight refresh for each login instance and configured provider call. Component waits can cancel independently. Keep credentials and raw provider errors at the authentication boundary and use safe failure labels.

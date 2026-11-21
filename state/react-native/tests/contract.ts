@@ -1,4 +1,14 @@
 import { Cancelled, enter, Session, Stage, Task, update, Workflow, type Run, type WhileRunning } from "fipe-state";
+import { useScreenWorkflow, useWorkflowSnapshot } from "fipe-state/react";
+
+export function useSnapshotTypes(model: Workflow<number, string>, create: () => typeof model) {
+    const count: number = useWorkflowSnapshot(model).state;
+    const missing: undefined = useWorkflowSnapshot(undefined);
+    const screen = useWorkflowSnapshot(useScreenWorkflow(create));
+    const beforeSetup: typeof screen = undefined;
+    const screenCount: number | undefined = screen?.state;
+    return { count, missing, beforeSetup, screenCount };
+}
 
 type Report = (line: string) => void;
 
